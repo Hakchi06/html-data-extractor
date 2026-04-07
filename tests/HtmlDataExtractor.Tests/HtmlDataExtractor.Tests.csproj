@@ -22,4 +22,14 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\HtmlDataExtractor.Core\HtmlDataExtractor.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="TestData/**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
