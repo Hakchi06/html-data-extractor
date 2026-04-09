@@ -4,6 +4,14 @@
 ![.NET](https://img.shields.io/badge/.NET-8.0-512BD4?logo=dotnet)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
+## Table of Contents
+
+- [How it works](#how-it-works)
+- [Project structure](#project-structure)
+- [Usage](#usage)
+- [Technical decisions](#technical-decisions)
+- [Disclaimer](#disclaimer)
+
 A generic C# library that transforms any HTML table into a 
 structured `TableData` object.
 
