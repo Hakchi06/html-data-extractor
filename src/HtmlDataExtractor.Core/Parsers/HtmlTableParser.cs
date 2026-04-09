@@ -1,7 +1,4 @@
 using System.Net;
-using System.Runtime.InteropServices;
-using System.Text.Json;
-using System.Text.RegularExpressions;
 using HtmlAgilityPack;
 using HtmlDataExtractor.Core.Interfaces;
 using HtmlDataExtractor.Core.Models;
@@ -17,16 +14,14 @@ public class HtmlTableParser : IHtmlParser
         if (string.IsNullOrWhiteSpace(html))
             return result;
 
-        var doc = new HtmlDocument(); doc.LoadHtml(html);
+        var doc = new HtmlDocument();
+        doc.LoadHtml(html);
 
-        // The response content contains information about the number of results
-        var infoRecords = doc.DocumentNode.SelectSingleNode("//li[contains(@class,'navigatorLabel')]//div")?.InnerText;
-        int totalPerPage = infoRecords != null ? int.Parse(Regex.Match(infoRecords, @"al\s+No\.\s+(\d+)").Groups[1].Value) : 0;   // number of records per page
-        
         var table = doc.DocumentNode.SelectSingleNode("//table");
+
         if (table == null)
             return result;
-            
+
         result.Headers = ExtractHeaders(table);
 
         if (result.Headers.Count == 0)
@@ -34,11 +29,7 @@ public class HtmlTableParser : IHtmlParser
 
         result.Records = ExtractRecords(table, result.Headers);
         result.TotalRecords = result.Records.Count;
-        // Future improvement: determine total pages without relying on text extraction
-        result.TotalPages = totalPerPage == 0 ? // Prevent division by zero
-            0 : 
-            (int)Math.Ceiling((double)result.Records.Count / totalPerPage);
-        
+
         return result;
     }
 
@@ -47,12 +38,12 @@ public class HtmlTableParser : IHtmlParser
     {
         var headers = new List<string>();
 
-        var headersCells = table.SelectNodes(".//thead/tr/th");
+        var headerCells = table.SelectNodes(".//thead/tr/th");
 
-        if (headersCells == null)
+        if (headerCells == null)
             return headers;
 
-        foreach (var cell in headersCells)
+        foreach (var cell in headerCells)
         {
             var headerText = WebUtility.HtmlDecode(cell.InnerText.Trim());
             headers.Add(headerText);
@@ -60,30 +51,32 @@ public class HtmlTableParser : IHtmlParser
 
         return headers;
     }
-    
+
     /* Extracts table rows and converts them into records using headers as keys */
     private List<Dictionary<string, string>> ExtractRecords(HtmlNode table, List<string> headers)
     {
         var records = new List<Dictionary<string, string>>();
 
-        var bodyRecords = table.SelectNodes(".//tbody/tr");
-        if (bodyRecords == null)
+        var bodyRows = table.SelectNodes(".//tbody/tr");
+
+        if (bodyRows == null)
             return records;
-        
-        foreach (var record in bodyRecords)
+
+        foreach (var row in bodyRows)
         {
-            var cells = record.SelectNodes(".//td");
+            var cells = row.SelectNodes(".//td");
 
             if (cells == null || cells.Count == 0)
                 continue;
-            
+
             var recordData = new Dictionary<string, string>();
 
             for (int i = 0; i < headers.Count; i++)
             {
-                var cellValue = i < cells.Count ? 
+                var cellValue = i < cells.Count ?
                     GetCellValue(cells[i]) :
                     string.Empty;
+
                 recordData[headers[i]] = cellValue;
             }
 
@@ -101,17 +94,14 @@ public class HtmlTableParser : IHtmlParser
     */
     private string GetCellValue(HtmlNode cell)
     {
-        // buscar texto visible
         var text = WebUtility.HtmlDecode(cell.InnerText.Trim());
         if (!string.IsNullOrEmpty(text))
             return text;
 
-        // buscar url en src
         var img = cell.SelectSingleNode(".//img[@src]");
         if (img != null)
             return img.GetAttributeValue("src", string.Empty);
 
-        // Buscar url en href
         var link = cell.SelectSingleNode(".//a[@href]");
         if (link != null)
             return link.GetAttributeValue("href", string.Empty);
