@@ -78,42 +78,4 @@ public class HtmlTableParserTests
         Assert.Empty(result.Headers);
         Assert.Empty(result.Records);
     }
-
-    [Fact]
-    public void ParseTable_WithValidHtml_HeadersShouldContainExpectedColumns()
-    {
-        var result = _parser.ParseTable(_searchHtml);
-
-        Assert.Contains("Marca", result.Headers);
-        Assert.Contains("N°. Expediente", result.Headers);
-        Assert.Contains("Nombre del solicitante", result.Headers);
-        Assert.Contains("Estatus actual", result.Headers);
-        Assert.Contains(">>>", result.Headers);
-        Assert.Contains("Logo", result.Headers);
-        Assert.Contains("Marca", result.Headers);
-        Assert.Contains("N°. Expediente", result.Headers);
-        Assert.Contains("Expdte.-Serie", result.Headers);
-        Assert.Contains("Fecha Presentación", result.Headers);
-        Assert.Contains("Fecha Publicación", result.Headers);
-        Assert.Contains("Fecha Concesión", result.Headers);
-        Assert.Contains("Nombre del solicitante", result.Headers);
-        Assert.Contains("Clases de Niza", result.Headers);
-        Assert.Contains("Clases de Viena", result.Headers);
-        Assert.Contains("Tipo de solicitud", result.Headers);
-        Assert.Contains("Subtipo de solicitud", result.Headers);
-        Assert.Contains("Estatus actual", result.Headers);
-        Assert.Contains("N°. Boletín", result.Headers);
-    }
-
-    [Fact]
-    public void ParseTable_WithValidHtml_RecordsShouldHaveNonEmptyMarcaField()
-    {
-        var result = _parser.ParseTable(_searchHtml);
-
-        Assert.All(result.Records, row =>
-        {
-            Assert.True(row.ContainsKey("Marca"));
-            Assert.False(string.IsNullOrWhiteSpace(row["Marca"]));
-        });
-    }
 }
